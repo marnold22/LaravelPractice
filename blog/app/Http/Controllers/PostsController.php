@@ -4,23 +4,27 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Post;
+use App\Repositories\Posts;
 use Carbon\Carbon;
 
 class PostsController extends Controller
 {
 
-    public function __construct(){
+    public function __construct() {
 
         $this->middleware('auth')->except(['index', 'show']);
     }
 
-    public function index(){
 
 
-      $posts = Post::latest()
-        ->filter(request(['month', 'year']))
-        ->get();
 
+    public function index(Posts $posts) {
+
+      $posts = $posts->all();
+
+      // $posts = Post::latest()
+      //   ->filter(request(['month', 'year']))
+      //   ->get();
 
       return view('posts.index', compact('posts'));
     }
@@ -29,7 +33,8 @@ class PostsController extends Controller
 
 
 
-    public function show($id){
+    public function show($id) {
+
       $post = Post::find($id);
       return view('posts.show', compact('post'));
     }
@@ -37,14 +42,15 @@ class PostsController extends Controller
 
 
 
-    public function create(){
+    public function create() {
+
       return view('posts.create');
     }
 
 
 
 
-    public function store(){
+    public function store() {
       // $post = new Post;
       // $post->title = request('title');   // This is the longhand method
       // $post->body = request('body');
@@ -55,10 +61,7 @@ class PostsController extends Controller
         'body' => 'required'
       ]);
 
-      auth()->user()->publish(
-
-        new Post(request(['title', 'body']))
-      );
+      auth()->user()->publish(new Post(request(['title', 'body'])));
 
       return redirect('/');
     }
